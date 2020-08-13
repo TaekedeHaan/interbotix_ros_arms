@@ -1329,7 +1329,10 @@ bool RobotArm::arm_get_firmware_register_values(interbotix_sdk::RegisterValues::
   return true;
 }
 
-bool RobotArm::arm_reboot(interbotix_sdk::Reboot::Request &req, interbotix_sdk::Reboot::Response &res) ///
+/// @brief ROS Service that allows the user to reboot multiple motors
+/// @param req - custom message of type 'Reboot'. Look at the service message for details
+/// @param res [out] - no message is returned
+bool RobotArm::arm_reboot(interbotix_sdk::Reboot::Request &req, interbotix_sdk::Reboot::Response &res)
 {
   const char* log;
   bool result = false;
@@ -1339,6 +1342,7 @@ bool RobotArm::arm_reboot(interbotix_sdk::Reboot::Request &req, interbotix_sdk::
     uint8_t id = motor_map[req.motor_name];
     if (req.cmd == interbotix_sdk::RegisterValues::Request::GRIPPER)
       id = motor_map["gripper"];
+    dxl_wb.reboot(id, &log); // TODO: in case of Overload, reboot returns false on first attempt
     result = dxl_wb.reboot(id, &log);
     if (result == false)
     {
@@ -1353,6 +1357,7 @@ bool RobotArm::arm_reboot(interbotix_sdk::Reboot::Request &req, interbotix_sdk::
     {
       if (joint.name != "gripper" || joint.name == "gripper" && req.cmd == interbotix_sdk::RegisterValues::Request::ARM_JOINTS_AND_GRIPPER)
       {
+        dxl_wb.reboot(joint.motor_id, &log);  // TODO: in case of Overload,  returns false on first attempt
         result = dxl_wb.reboot(joint.motor_id, &log);
         if (result == false)
         {
