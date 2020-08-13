@@ -15,6 +15,7 @@
 #include <dynamixel_workbench_toolbox/dynamixel_workbench.h>
 #include "interbotix_sdk/OperatingModes.h"
 #include "interbotix_sdk/RegisterValues.h"
+#include "interbotix_sdk/Reboot.h"
 #include "interbotix_sdk/JointCommands.h"
 #include "interbotix_sdk/SingleCommand.h"
 #include "interbotix_sdk/FirmwareGains.h"
@@ -182,6 +183,7 @@ private:
     ros::ServiceServer srv_operating_mode;                                                            // Service to set the operating modes for the motors
     ros::ServiceServer srv_set_register;                                                              // Service to set multiple motor registers
     ros::ServiceServer srv_get_register;                                                              // Service to get raw values from multiple motor registers
+    ros::ServiceServer srv_reboot;                                                                    // Service to reboot multiple motors
     ros::ServiceServer srv_get_robot_info;                                                            // Service to get information about the robot arm
     ros::ServiceServer srv_torque_on;                                                                 // Service to torque on the robot's motors
     ros::ServiceServer srv_torque_off;                                                                // Service to torque off the robot's motors
@@ -340,6 +342,11 @@ private:
     /// @param req - custom message of type 'RegisterValues'. Look at the service message for details
     /// @param res [out] - vector of raw register values
     bool arm_get_firmware_register_values(interbotix_sdk::RegisterValues::Request &req, interbotix_sdk::RegisterValues::Response &res);
+
+    /// @brief ROS Service that allows the user to reboot multiple motors
+    /// @param req - custom message of type 'RegisterValues'. Look at the service message for details
+    /// @param res [out] - no message is returned
+    bool arm_reboot(interbotix_sdk::Reboot::Request &req, interbotix_sdk::Reboot::Response &res);
 
     /// @brief ROS Timer that reads current states from all the motors and publishes them to the joint_states topic
     void arm_update_joint_states(const ros::TimerEvent &e);

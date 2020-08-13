@@ -1,0 +1,20 @@
+# Reboot joint(s)
+#
+# There are four options to reboot joints:
+#   1) ARM_JOINTS_AND_GRIPPER - affects all arm joints, including the gripper.
+#   2) ARM_JOINTS - affects all arm joints, excluding the gripper.
+#   3) GRIPPER - affects only the gripper
+#   4) SINGLE_MOTOR - affects the motor specified by 'motor_name'.
+#                     Note that the 'motor_name' parameter only needs to be used for this
+#                     option. For any other option, it can be left blank.
+#
+# Set the option to the 'cmd' parameter and the 'motor_name' to the specified motor (if doing the
+# SINGLE_MOTOR option)..
+
+int8 ARM_JOINTS_AND_GRIPPER = 1
+int8 ARM_JOINTS = 2
+int8 GRIPPER = 3
+int8 SINGLE_MOTOR = 4
+
+int8 cmd
+string motor_name

@@ -760,6 +760,7 @@ void RobotArm::arm_init_services(void)
   srv_firmware_gains = node.advertiseService("set_firmware_pid_gains", &RobotArm::arm_set_firmware_pid_gains, this);
   srv_set_register = node.advertiseService("set_motor_register_values", &RobotArm::arm_set_firmware_register_values, this);
   srv_get_register = node.advertiseService("get_motor_register_values", &RobotArm::arm_get_firmware_register_values, this);
+  srv_reboot = node.advertiseService("reboot_motor", &RobotArm::arm_reboot, this);
 }
 
 /// @brief Initialize ROS Timers
@@ -1284,6 +1285,7 @@ bool RobotArm::arm_set_firmware_register_values(interbotix_sdk::RegisterValues::
   return true;
 }
 
+
 /// @brief ROS Service that allows the user to read a specific register on multiple motors
 /// @param req - custom message of type 'RegisterValues'. Look at the service message for details
 /// @param res [out] - vector of raw register values
@@ -1324,6 +1326,44 @@ bool RobotArm::arm_get_firmware_register_values(interbotix_sdk::RegisterValues::
       }
     }
   }
+  return true;
+}
+
+bool RobotArm::arm_reboot(interbotix_sdk::Reboot::Request &req, interbotix_sdk::Reboot::Response &res) ///
+{
+  const char* log;
+  bool result = false;
+
+  if (req.cmd == interbotix_sdk::RegisterValues::Request::SINGLE_MOTOR || req.cmd == interbotix_sdk::RegisterValues::Request::GRIPPER)
+  {
+    uint8_t id = motor_map[req.motor_name];
+    if (req.cmd == interbotix_sdk::RegisterValues::Request::GRIPPER)
+      id = motor_map["gripper"];
+    result = dxl_wb.reboot(id, &log);
+    if (result == false)
+    {
+      ROS_ERROR("%s", log);
+      ROS_ERROR("Failed to reboot Dynamixel[ID : %d]", id);
+      return false;
+    }
+  }
+  else if (req.cmd == interbotix_sdk::RegisterValues::Request::ARM_JOINTS_AND_GRIPPER || req.cmd == interbotix_sdk::RegisterValues::Request::ARM_JOINTS)
+  {
+    for (auto const& joint: arm_joints)
+    {
+      if (joint.name != "gripper" || joint.name == "gripper" && req.cmd == interbotix_sdk::RegisterValues::Request::ARM_JOINTS_AND_GRIPPER)
+      {
+        result = dxl_wb.reboot(joint.motor_id, &log);
+        if (result == false)
+        {
+          ROS_ERROR("%s", log);
+          ROS_ERROR("Failed to reboot Dynamixel[ID : %d]", joint.motor_id);
+          return false;
+        }
+      }
+    }
+  }
+  arm_init_operating_modes();
   return true;
 }
 

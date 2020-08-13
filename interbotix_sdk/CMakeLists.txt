@@ -65,6 +65,7 @@ add_service_files(
   OperatingModes.srv
   RegisterValues.srv
   RobotInfo.srv
+  Reboot.srv
 )
 
 ## Generate added messages and services with any dependencies listed here
